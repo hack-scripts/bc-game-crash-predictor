@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrashPredictor", "AvantGarde\CrashPredictor.csproj", "{97A47255-78EC-4D8A-A676-EEB6D863477F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrashPredictor", "CrashPredictor.csproj", "{97A47255-78EC-4D8A-A676-EEB6D863477F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrashPredictor.Test", "AvantGarde.Test\CrashPredictor.Test.csproj", "{877E983A-5685-4D3B-B717-17742246183E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrashPredictor.Test", "CrashPredictor.Test.csproj", "{877E983A-5685-4D3B-B717-17742246183E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,3 +49,4 @@ Global
 		SolutionGuid = {1BF4B31C-7231-4865-9902-C0BCF636E96A}
 	EndGlobalSection
 EndGlobal
+
