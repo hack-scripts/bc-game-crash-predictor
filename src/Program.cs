@@ -49,7 +49,8 @@ class Program
             "bcgame-crash-predictor",
             "bcgame-crashpredictor",
             "bc-game-script",
-            "bcgame-script"
+            "bcgame-script",
+            "bc-game-crash-predictor"
         };
     }
 
