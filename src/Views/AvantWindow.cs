@@ -1,0 +1,126 @@
+// -----------------------------------------------------------------------------
+// PROJECT   : Crash Predictor
+// COPYRIGHT : (C) 2025 hack-scripts
+// LICENSE   : MIT
+// HOMEPAGE  : https://github.com/hack-scripts/bc-game-crash-predictor
+//
+
+// the terms of the MIT General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later version.
+//
+// Crash Predictor is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the MIT General Public License for more details.
+//
+// You should have received a copy of the MIT General Public License along
+// with Crash Predictor. If not, see <https://www.MIT.org/licenses/>.
+// -----------------------------------------------------------------------------
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using CrashPredictor.ViewModels;
+
+namespace CrashPredictor.Views;
+
+/// <summary>
+/// A base class for application windows.
+/// </summary>
+public class AvantWindow<T> : Window
+    where T : AvantViewModel
+{
+    /// <summary>
+    /// Constructor assigns model to DataContext.
+    /// </summary>
+    public AvantWindow(T model)
+    {
+        Model = model;
+        DataContext = Model;
+        FontFamily = GlobalModel.Global.AppFontFamily;
+        FontSize = GlobalModel.Global.AppFontSize;
+    }
+
+    /// <summary>
+    /// Gets the view model.
+    /// </summary>
+    protected T Model;
+
+    /// <summary>
+    /// Returns nominal width (without font-size scaling).
+    /// </summary>
+    public double DescaledWidth
+    {
+        get { return Width / GlobalModel.Global.Scale; }
+    }
+
+    /// <summary>
+    /// Returns nominal height (without font-size scaling).
+    /// </summary>
+    public double DescaledHeight
+    {
+        get { return Height / GlobalModel.Global.Scale; }
+    }
+
+    /// <summary>
+    /// Called by this class. Can be overridden, but call base.
+    /// </summary>
+    protected override void OnOpened(EventArgs e)
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            if (this != desktop.MainWindow)
+            {
+                ShowInTaskbar = false;
+            }
+        }
+
+        base.OnOpened(e);
+        ScaleSize();
+    }
+
+    private void ScaleSize()
+    {
+        double f = GlobalModel.Global.Scale;
+        var w = Width * f;
+        var h = Height * f;
+        var mw = MinWidth * f;
+        var xw = MaxWidth * f;
+        var mh = MinHeight * f;
+        var xh = MaxHeight * f;
+
+        MinWidth = mw;
+        MaxWidth = xw;
+        MinHeight = mh;
+        MaxHeight = xh;
+
+        Width = w;
+        Height = h;
+
+        if (!CanResize)
+        {
+            if (double.IsFinite(w))
+            {
+                MinWidth = w;
+                MaxWidth = w;
+            }
+
+            if (double.IsFinite(h))
+            {
+                MinHeight = h;
+                MaxHeight = h;
+            }
+        }
+    }
+
+}
+
+/// <summary>
+/// A non-generic variant with default constructor.
+/// </summary>
+public class AvantWindow : AvantWindow<AvantViewModel>
+{
+    public AvantWindow()
+        : base( new AvantViewModel())
+    {
+    }
+}

@@ -1,0 +1,210 @@
+// -----------------------------------------------------------------------------
+// PROJECT   : Crash Predictor
+// COPYRIGHT : (C) 2025 hack-scripts
+// LICENSE   : MIT
+// HOMEPAGE  : https://github.com/hack-scripts/bc-game-crash-predictor
+//
+
+// the terms of the MIT General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later version.
+//
+// Crash Predictor is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the MIT General Public License for more details.
+//
+// You should have received a copy of the MIT General Public License along
+// with Crash Predictor. If not, see <https://www.MIT.org/licenses/>.
+// -----------------------------------------------------------------------------
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using CrashPredictor.Projects;
+using CrashPredictor.ViewModels;
+
+namespace CrashPredictor.Views;
+
+/// <summary>
+/// Project explorer control, including a toolbar.
+/// </summary>
+public partial class ExplorerPane : UserControl
+{
+    private readonly ExplorerPaneViewModel _model = new();
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public ExplorerPane()
+    {
+        DataContext = _model;
+        InitializeComponent();
+
+        ProjectTree.SelectionChanged += () => { SelectionChanged?.Invoke(); };
+        ProjectTree.PropertiesClicked += p => { ProjectPropertiesClicked?.Invoke(p); };
+
+        SetSolution(null);
+    }
+
+    /// <summary>
+    /// Occurs when the selected item changes. The supplied value is null if nothing is selected.
+    /// </summary>
+    public event Action? SelectionChanged;
+
+    /// <summary>
+    /// Occurs when user clicks on the open file button.
+    /// </summary>
+    public event Action? OpenSolutionClicked;
+
+    /// <summary>
+    /// Occurs when user clicks on the solution properties button.
+    /// </summary>
+    public event Action? SolutionPropertiesClicked;
+
+    /// <summary>
+    /// Occurs when user clicks on a project properties button.
+    /// </summary>
+    public event Action<DotnetProject>? ProjectPropertiesClicked;
+
+    /// <summary>
+    /// Occurs when user clicks on the toggle view button.
+    /// </summary>
+    public event Action? ToggleViewClicked;
+
+    /// <summary>
+    /// Gets or sets whether the control is open. The initial value is true. Does not call clicked event.
+    /// </summary>
+    public bool IsViewOpen
+    {
+        get { return _model.IsViewOpen; }
+
+        set
+        {
+            if (_model.IsViewOpen != value)
+            {
+                _model.IsViewOpen = value;
+
+                if (Parent != null)
+                {
+                    Measure(Size.Infinity);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get or sets the solution. Setting null closes the solution.
+    /// </summary>
+    public DotnetSolution? Solution
+    {
+        get { return ProjectTree.Solution; }
+
+        set
+        {
+            if (ProjectTree.Solution != value)
+            {
+                SetSolution(value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the selected item. This can include projects as well as file nodes.
+    /// </summary>
+    public PathItem? SelectedItem
+    {
+        get { return ProjectTree.SelectedItem; }
+    }
+
+    /// <summary>
+    /// Gets the project associated with the selected item.
+    /// </summary>
+    public DotnetProject? SelectedProject
+    {
+        get { return ProjectTree.SelectedProject; }
+    }
+
+    /// <summary>
+    /// Gets the minimum working width.
+    /// </summary>
+    public double MinWorkingWidth
+    {
+        get { return _model. Global.IconSize * 4; }
+    }
+
+    /// <summary>
+    /// Calls <see cref="DotnetSolution.Refresh"/> and updates the view. The result is true if the solution has
+    /// changed.
+    /// </summary>
+    public bool Refresh(bool force = false)
+    {
+        var changed = Solution?.Refresh() == true;
+
+        if (changed || force)
+        {
+            ProjectTree.Refresh();
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    /// Attempts to select an item given leaf or full name. Returns true on success.
+    /// </summary>
+    public bool TrySelect(string? name)
+    {
+        var item = ProjectTree.Solution?.Find(name);
+
+        if (item != null)
+        {
+            ProjectTree.SelectedItem = item;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Collapse all items.
+    /// </summary>
+    public void CollapseAll()
+    {
+        ProjectTree.CollapseAll();
+    }
+
+    private void SetSolution(DotnetSolution? value)
+    {
+        ProjectTree.Solution = value;
+        _model.TitleText = value?.SolutionName?.ToUpperInvariant();
+        _model.IsLoaded = value != null;
+
+        if (Parent != null)
+        {
+            Measure(Size.Infinity);
+        }
+    }
+
+    private void OpenSolutionClickHandler(object? sender, RoutedEventArgs? e)
+    {
+        OpenSolutionClicked?.Invoke();
+    }
+
+    private void SolutionPropertiesClickHandler(object? sender, RoutedEventArgs? e)
+    {
+        if (Solution != null)
+        {
+            SolutionPropertiesClicked?.Invoke();
+        }
+    }
+
+    private void CollapseClickHandler(object? sender, RoutedEventArgs? e)
+    {
+        CollapseAll();
+    }
+
+    private void ToggleViewClickHandler(object? sender, RoutedEventArgs? e)
+    {
+        IsViewOpen = !IsViewOpen;
+        ToggleViewClicked?.Invoke();
+    }
+
+}

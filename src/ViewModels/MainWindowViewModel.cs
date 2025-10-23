@@ -1,0 +1,250 @@
+// -----------------------------------------------------------------------------
+// PROJECT   : Crash Predictor
+// COPYRIGHT : (C) 2025 hack-scripts
+// LICENSE   : MIT
+// HOMEPAGE  : https://github.com/hack-scripts/bc-game-crash-predictor
+//
+
+// the terms of the MIT General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later version.
+//
+// Crash Predictor is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the MIT General Public License for more details.
+//
+// You should have received a copy of the MIT General Public License along
+// with Crash Predictor. If not, see <https://www.MIT.org/licenses/>.
+// -----------------------------------------------------------------------------
+
+using System.Collections;
+using System.Diagnostics;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using CrashPredictor.Utility;
+using CrashPredictor.Views;
+using ReactiveUI;
+
+namespace CrashPredictor.ViewModels;
+
+public class MainWindowViewModel : PreviewOptionsViewModel
+{
+    private MainWindow? _owner;
+
+    private bool _isTopmost;
+    private bool _isWelcomeVisible;
+    private bool _isPinVisible;
+    private double _welcomeWidth = 150;
+    private bool _hasProject;
+    private IEnumerable? _recentFiles;
+    private bool _isFormattedXsdChecked;
+    private bool _isAnnotationXsdChecked = true;
+
+    public MainWindowViewModel()
+    {
+        _isWelcomeVisible = App.Settings.ShowWelcome;
+        _isPinVisible = App.Settings.ShowPin;
+        UpdateRecentMenu();
+    }
+
+    public MainWindow? Owner
+    {
+        get { return _owner; }
+
+        set
+        {
+            if (value != null)
+            {
+                value.Topmost = IsTopmost;
+            }
+
+            _owner = value;
+        }
+    }
+
+    public bool IsTopmost
+    {
+        get { return _isTopmost; }
+
+        set
+        {
+            if (_isTopmost != value)
+            {
+                _isTopmost = value;
+
+                if (Owner != null)
+                {
+                    Owner.Topmost = value;
+                }
+
+                this.RaisePropertyChanged(nameof(IsTopmost));
+            }
+        }
+    }
+
+    public bool IsWelcomeVisible
+    {
+        get { return _isWelcomeVisible; }
+        set { this.RaiseAndSetIfChanged(ref _isWelcomeVisible, value, nameof(IsWelcomeVisible)); }
+    }
+
+    public bool IsPinVisible
+    {
+        get { return _isPinVisible; }
+        set { this.RaiseAndSetIfChanged(ref _isPinVisible, value, nameof(IsPinVisible)); }
+    }
+
+    public double WelcomeWidth
+    {
+        get { return _welcomeWidth; }
+        set { this.RaiseAndSetIfChanged(ref _welcomeWidth, value, nameof(WelcomeWidth)); }
+    }
+
+    public bool HasProject
+    {
+        get { return _hasProject; }
+        set { this.RaiseAndSetIfChanged(ref _hasProject, value, nameof(HasProject)); }
+    }
+
+    public IEnumerable? RecentFiles
+    {
+        get { return _recentFiles; }
+        set { this.RaiseAndSetIfChanged(ref _recentFiles, value, nameof(RecentFiles)); }
+    }
+
+    public bool IsFormattedXsdChecked
+    {
+        get { return _isFormattedXsdChecked; }
+        set { this.RaiseAndSetIfChanged(ref _isFormattedXsdChecked, value, nameof(IsFormattedXsdChecked)); }
+    }
+
+    public bool IsAnnotationXsdChecked
+    {
+        get { return _isAnnotationXsdChecked; }
+        set { this.RaiseAndSetIfChanged(ref _isAnnotationXsdChecked, value, nameof(IsAnnotationXsdChecked)); }
+    }
+
+    public void OpenSolutionCommand()
+    {
+        Owner?.OpenSolutionDialog();
+        UpdateRecentMenu();
+    }
+
+    public void CloseSolutionCommand()
+    {
+        Owner?.CloseSolution();
+    }
+
+    public void ExportSchemaCommand()
+    {
+        Owner?.ShowExportSchemaDialog();
+    }
+
+    public void SolutionDefaultsCommand()
+    {
+        Owner?.ShowSolutionDefaultsDialog();
+    }
+
+    public void ToggleExplorerViewCommand()
+    {
+        Owner?.SetExplorerView();
+    }
+
+    public void ExitCommand()
+    {
+        Owner?.Close();
+    }
+
+    public void SolutionPropertiesCommand()
+    {
+        Owner?.ShowSolutionPropertiesDialog();
+    }
+
+    public void ProjectPropertiesCommand()
+    {
+        Owner?.ShowProjectPropertiesDialog();
+    }
+
+    public void CopyCommand()
+    {
+        Owner?.Copy();
+    }
+
+    public void PreferencesCommand()
+    {
+        Owner?.ShowPreferencesDialog();
+    }
+
+    public void RestartCommand()
+    {
+        Owner?.RestartHost();
+    }
+
+    public void ToggleXamlCommand()
+    {
+        Owner?.ToggleXamlView();
+    }
+
+#pragma warning disable CA1822
+    public void WebpageCommand()
+    {
+        ShellOpen.Start(GlobalModel.WebUrl);
+    }
+#pragma warning restore CA1822
+
+    public void AboutCommand()
+    {
+        Owner?.ShowAboutDialog();
+    }
+
+    /// <summary>
+    /// Override.
+    /// </summary>
+    protected override void OnThemeChanged()
+    {
+        base.OnThemeChanged();
+    }
+
+    private void UpdateRecentMenu()
+    {
+        var menus = new List<Control>();
+
+        foreach (var item in App.Settings.RecentFiles)
+        {
+            Debug.WriteLine("UpdateRecentMenu: " + item.Path);
+            var m = new MenuItem();
+            m.Header = item.Path;
+            m.Tag = item.Path;
+            m.Click += OpenRecentClickHandler;
+            menus.Add(m);
+        }
+
+        if (menus.Count != 0)
+        {
+            menus.Add(new Separator());
+
+            var m = new MenuItem();
+            m.Header = "Clear";
+            m.Click += ClearRecentClickHandler;
+            menus.Add(m);
+        }
+
+        Debug.WriteLine("Recent count: " + menus.Count);
+        RecentFiles = menus;
+    }
+
+    private void OpenRecentClickHandler(object? sender, RoutedEventArgs e)
+    {
+        Owner?.MainMenu.Close();
+        Owner?.OpenSolution((string?)((Control?)sender)?.Tag ?? string.Empty);
+        UpdateRecentMenu();
+    }
+
+    private void ClearRecentClickHandler(object? sender, RoutedEventArgs e)
+    {
+        Owner?.MainMenu.Close();
+        App.Settings.ClearRecent();
+        App.Settings.Write();
+        RecentFiles = Array.Empty<string>();
+    }
+
+}
