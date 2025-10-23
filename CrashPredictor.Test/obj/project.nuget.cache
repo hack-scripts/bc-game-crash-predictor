@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "jbnLu8x468s=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\marie\\Downloads\\bustabit github GUI layout designer C++\\AvantGarde-main\\AvantGarde.Test\\CrashPredictor.Test.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Unable to find project 'C:\\Users\\marie\\Downloads\\bustabit github GUI layout designer C++\\AvantGarde-main\\CrashPredictor\\CrashPredictor.csproj'. Check that the project reference is valid and that the project file exists.",
+      "libraryId": "C:\\Users\\marie\\Downloads\\bustabit github GUI layout designer C++\\AvantGarde-main\\CrashPredictor\\CrashPredictor.csproj",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
+}
